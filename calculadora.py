@@ -7,17 +7,8 @@ def importarDados():
         linhas = arquivo.read()
         dados = linhas.split()
         for i in range(len(dados)):
-            dados[i] = int(dados[i])
+            dados[i] = float(dados[i])
 
-    return dados
-
-def digitarDados():
-    
-    n = int(input('Digite o número de dados: '))
-    dados = []
-    for i in range(n):
-        dado = input('Digite o dado: ')
-        dados.append(dado)
     return dados
 
 def menorValor(dados):
@@ -56,7 +47,7 @@ def amplitudeClasse(at, k):
 def criarClasses(h, minval, maxval):
 
     classes = []
-    for i in range(minval, maxval, h):
+    for i in range(int(minval), int(maxval), h):
         classe = [i, i+h]
         classes.append(classe)
     return classes
@@ -68,13 +59,16 @@ def criarTabelaFrequencias(dados, h, minval, maxval):
     fa = 0
     
     for i in range(len(classes)):
+
         classe = classes[i]
         li = classe[0]
         ls = classe[1]
         fi = 0
+
         for dado in dados:
             if (dado >= li and dado < ls):
                 fi += 1
+
         xi = (li + ls) / 2
         fa += fi
         fap = (fa / len(dados)) * 100
@@ -83,6 +77,7 @@ def criarTabelaFrequencias(dados, h, minval, maxval):
         fixi = fi * xi
         xi2 = xi ** 2
         fixi2 = fi * xi2
+
         tabela.loc[i] = [classe, li, ls, fi, xi, fa, fap, fr, frp, fixi, xi2, fixi2]
 
     return tabela
@@ -98,6 +93,12 @@ def somasTabela(tabela):
     somas = [somafi, somafr, somafrp, somafixi, somafixi2]
 
     return somas
+
+def addSomaTabela(tabela, somas):
+
+    tabela.loc[tabela.shape[0]] = ['Total', '', '', somas[0], '', '', '', somas[1], somas[2], somas[3], '', somas[4]]
+
+    return tabela
 
 def media(somas):
 
@@ -189,14 +190,17 @@ variAmo = varianciaAmostral(somas)
 desvio = desvioPadrao(variAmo)
 cv = coeficienteVariacao(desvio, x)
 
+tabela = addSomaTabela(tabela, somas)
+
+print()
+print('-------------------------------- Tabela de Frequência --------------------------------')
 print(tabela)
 print()
-print(somas)
+print('Média:                     %.2f' % x)
+print('Mediana:                   %.2f' % md)
+print('Moda:                      %.2f' % mo)
+print('Variância populacional:    %.2f' % variPop)
+print('Variância amostral:        %.2f' % variAmo)
+print('Desvio padrão:             %.2f' % desvio)
+print('Coeficiente de variação:   %.2f%%' % cv)
 print()
-print('Média: %.2f' % x)
-print('Mediana: %.2f' % md)
-print('Moda: %.2f' % mo)
-print('Variância populacional: %.2f' % variPop)
-print('Variância amostral: %.2f' % variAmo)
-print('Desvio padrão: %.2f' % desvio)
-print('Coeficiente de variação: %.2f%%' % cv)
