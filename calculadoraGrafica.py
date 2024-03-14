@@ -1,15 +1,19 @@
 import math
 import pandas as pd
+import tkinter as tk
+import tkinter.font as tkFont
+from tkinter import filedialog
 
 def importarDados():
 
-    with open('dados.txt', 'r') as arquivo:
-        linhas = arquivo.read()
-        dados = linhas.split()
-        for i in range(len(dados)):
-            dados[i] = float(dados[i])
-
-    return dados
+    filename = filedialog.askopenfilename(title="Selecione um arquivo", filetypes=[("Arquivos de texto", "*.txt")])
+    if filename:
+        with open(filename, 'r') as arquivo:
+            linhas = arquivo.read()
+            dados = linhas.split()
+            for i in range(len(dados)):
+                dados[i] = float(dados[i])
+        return dados
 
 def menorValor(dados):
 
@@ -122,7 +126,10 @@ def mediana(somas, tabela, h):
     faant = tabela['fa'].iloc[classe - 1]
     fi = tabela['fi'].iloc[classe]
 
-    mediana = li + (((posicao - faant) / fi) * h)
+    if (classe == 0):
+        mediana = li + (((posicao - 0) / fi) * h)
+    else:
+        mediana = li + (((posicao - faant) / fi) * h)
 
     return mediana
 
@@ -131,8 +138,20 @@ def moda(tabela, h):
     fi = tabela['fi']
     classe = fi.idxmax()
     li = tabela['li'].iloc[classe]
-    d1 = fi.iloc[classe] - tabela['fi'].iloc[classe - 1]
-    d2 = fi.iloc[classe] - tabela['fi'].iloc[classe + 1]
+
+    if (classe == 0):
+
+        d1 = fi.iloc[classe]
+        d2 = fi.iloc[classe] - tabela['fi'].iloc[classe + 1]
+
+    elif (classe == len(tabela) - 1):
+
+        d1 = fi.iloc[classe] - tabela['fi'].iloc[classe - 1]
+        d2 = fi.iloc[classe]
+
+    else:
+        d1 = fi.iloc[classe] - tabela['fi'].iloc[classe - 1]
+        d2 = fi.iloc[classe] - tabela['fi'].iloc[classe + 1]
 
     moda = li + ((d1 / (d1 + d2)) * h)
 
@@ -170,6 +189,22 @@ def coeficienteVariacao(desvio, media):
 
     return cv
 
+def exibir():
+    
+    texto = '\n'
+    texto += '-------------------------------- Tabela de Frequência --------------------------------\n\n'
+    texto += str(tabela) + '\n\n'
+    texto += f'Média: {x:.2f}\n'
+    texto += f'Mediana: {md:.2f}\n'
+    texto += f'Moda: {mo:.2f}\n'
+    texto += f'Variância populacional: {variPop:.2f}\n'
+    texto += f'Variância amostral: {variAmo:.2f}\n'
+    texto += f'Desvio padrão: {desvio:.2f}\n'
+    texto += f'Coeficiente de variação: {cv:.2f}%\n'
+    
+    resultados = tk.Label(root, text=texto, font=("Courier", 16), justify='center')
+    resultados.pack()
+
 dados = importarDados()
 
 n = quantidadeDados(dados)
@@ -190,17 +225,15 @@ variAmo = varianciaAmostral(somas)
 desvio = desvioPadrao(variAmo)
 cv = coeficienteVariacao(desvio, x)
 
+tabela['fa%'] = tabela['fa%'].round(2)
+
 tabela = addSomaTabela(tabela, somas)
 
-print()
-print('-------------------------------- Tabela de Frequência --------------------------------')
-print(tabela)
-print()
-print('Média:                     %.2f' % x)
-print('Mediana:                   %.2f' % md)
-print('Moda:                      %.2f' % mo)
-print('Variância populacional:    %.2f' % variPop)
-print('Variância amostral:        %.2f' % variAmo)
-print('Desvio padrão:             %.2f' % desvio)
-print('Coeficiente de variação:   %.2f%%' % cv)
-print()
+tabela['fr'] = tabela['fr'].round(4)
+tabela['fr%'] = tabela['fr%'].round(2)
+
+root = tk.Tk()
+root.title('Calculadora Estatística')
+root.attributes("-zoomed", True)
+exibir()
+root.mainloop()
